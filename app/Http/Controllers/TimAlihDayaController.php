@@ -15,7 +15,7 @@ class TimAlihDayaController extends Controller
     {
         $alih_dayas = TimAlihDaya::where('status', 'aktif')
             ->orderBy('nama')
-            ->paginate(20); 
+            ->paginate(20);
         return view('admin.alih_daya.index', compact('alih_dayas'));
     }
 
@@ -63,7 +63,7 @@ class TimAlihDayaController extends Controller
 
     public function update(Request $request, TimAlihDaya $alih_daya)
     {
-        
+
         // Validasi input
         $validated = $request->validate([
             'nama'             => 'required|string|max:255',
@@ -96,7 +96,7 @@ class TimAlihDayaController extends Controller
 
         // Ambil page dari request
         $page = $request->input('page', 1);
-        
+
         return redirect()->route('alih_daya.index', ['page' => $page])
             ->with('success', 'Data berhasil diperbarui!');
     }
@@ -123,4 +123,11 @@ class TimAlihDayaController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
+    public function halaman2()
+{
+    $keamanan = TimAlihDaya::where('bidang', 'Keamanan')->get();
+
+    return view('admin.penilaian.index2', compact('keamanan'));
+}
+
 }

@@ -23,12 +23,43 @@ class PenilaianController extends Controller
         return view('admin.penilaian.kebersihan', compact('pegawais', 'taman', 'keamanan', 'sopir', 'penilai'));
     }
 
+    public function index2()
+    {
+        $kebersihan = TimAlihDaya::where('jabatan', 'kebersihan')->get();
+        $taman = TimAlihDaya::where('jabatan', 'taman')->get();
+        $keamanan = TimAlihDaya::where('jabatan', 'keamanan')->get();
+        $sopir = TimAlihDaya::where('jabatan', 'sopir')->get();
+
+        return view('admin.penilaian.index2', compact('kebersihan', 'taman', 'keamanan', 'sopir'));
+    }
+
+    public function index3()
+    {
+        $kebersihan = TimAlihDaya::where('jabatan', 'kebersihan')->get();
+        $taman = TimAlihDaya::where('jabatan', 'taman')->get();
+        $keamanan = TimAlihDaya::where('jabatan', 'keamanan')->get();
+        $sopir = TimAlihDaya::where('jabatan', 'sopir')->get();
+
+        return view('admin.penilaian.index3', compact('kebersihan', 'taman', 'keamanan', 'sopir'));
+    }
+
+    public function index4()
+    {
+        $kebersihan = TimAlihDaya::where('jabatan', 'kebersihan')->get();
+        $taman = TimAlihDaya::where('jabatan', 'taman')->get();
+        $keamanan = TimAlihDaya::where('jabatan', 'keamanan')->get();
+        $sopir = TimAlihDaya::where('jabatan', 'sopir')->get();
+
+        return view('admin.penilaian.index4', compact('kebersihan', 'taman', 'keamanan', 'sopir'));
+    }
+
+
     public function create($id)
     {
         $alih_daya = TimAlihDaya::findOrFail($id);
         $kriterias = KriteriaPenilaian::all();
         $totalSkor = $kriterias->sum('skor_maks');
-        
+
         return view('admin.penilaian.create', compact('alih_daya', 'kriterias', 'totalSkor'));
     }
 

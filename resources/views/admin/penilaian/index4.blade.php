@@ -22,14 +22,14 @@
         @csrf
 
         {{-- FOTO PEGAWAI --}}
-        @if($kebersihan->count() > 0)
+        @if($sopir->count() > 0)
         <div class="mb-5">
             <h5 class="fw-bold mb-3 text-center">
-                <span class="badge bg-primary">Bidang Kebersihan</span>
+                <span class="badge bg-primary">Sopir</span>
             </h5>
 
             <div class="row g-4 justify-content-center">
-                @foreach($kebersihan as $pegawai)
+                @foreach($sopir as $pegawai)
                 <div class="col-6 col-md-3 col-lg-2 text-center">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body p-3">
@@ -92,10 +92,9 @@
                                 <th width="50%">Catatan / Temuan</th>
                             </tr>
                         </thead>
-                        <tbody>
 
-                        {{-- KEBERSIHAN --}}
-                        @foreach($kebersihan as $pegawai)
+                        {{-- SOPIR --}}
+                        @foreach($sopir as $pegawai)
                         <tr>
                             <td class="fw-semibold">{{ $pegawai->nama }}</td>
                             <td>
@@ -105,10 +104,10 @@
                                         <input class="form-check-input"
                                                type="radio"
                                                name="nilai[{{ $pegawai->id }}]"
-                                               id="kebersihan_{{ $pegawai->id }}_{{ $i }}"
+                                               id="sopir_{{ $pegawai->id }}_{{ $i }}"
                                                value="{{ $i }}">
                                         <label class="form-check-label"
-                                               for="kebersihan_{{ $pegawai->id }}_{{ $i }}">
+                                               for="sopir_{{ $pegawai->id }}_{{ $i }}">
                                             {{ $i }}
                                         </label>
                                     </div>
@@ -124,25 +123,15 @@
                         </tr>
                         @endforeach
 
-
-
-
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Tombol Navigasi --> <div class="d-flex justify-content-between mt-4"> <button type="button" class="btn btn-secondary" onclick="history.back()"> Sebelumnya </button> <button type="button" class="btn btn-primary" onclick="window.location.href='{{ route('admin.penilaian.index2') }}'"> Selanjutnya </button> </div>
+                <!-- Tombol Navigasi --> <div class="d-flex justify-content-between mt-4"> <button type="button" class="btn btn-secondary" onclick="history.back()"> Sebelumnya </button> <button type="button" class="btn btn-primary" onclick="window.location.href='{{ route('admin.penilaian.index4') }}'"> Selanjutnya </button> </div>
             </div>
         </div>
     </form>
 </div>
-<script>
-document.getElementById('penilai_id').addEventListener('change', function () {
-    const selected = this.options[this.selectedIndex];
-    const nip = selected.getAttribute('data-nip') || '';
-    document.getElementById('nip_penilai').value = nip;
-});
-</script>
 
 <style>
 .form-check-input { cursor:pointer; }

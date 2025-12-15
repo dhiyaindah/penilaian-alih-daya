@@ -17,6 +17,13 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('dashboard')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 });
+Route::prefix('admin')->group(function () {
+    Route::prefix('penilaian')->group(function () {
+        Route::get('/halaman-2', function () {
+            return view('admin.penilaian.index2');
+        })->name('admin.penilaian.halaman2');
+    });
+});
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('pegawai', PegawaiController::class);
@@ -28,12 +35,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // PENILAIAN
     Route::prefix('penilaian')->group(function () {
         Route::get('/', [PenilaianController::class, 'index'])->name('penilaian.index');
+        Route::get('/halaman-2', [PenilaianController::class, 'index2'])->name('admin.penilaian.index2');
+        Route::get('/halaman-3', [PenilaianController::class, 'index3'])->name('admin.penilaian.index3');
+        Route::get('/halaman-4', [PenilaianController::class, 'index4'])->name('admin.penilaian.index4');
         Route::get('/rekap', [PenilaianController::class, 'rekap'])->name('penilaian.rekap');
         Route::get('/create/{id}', [PenilaianController::class, 'create'])->name('penilaian.create');
         Route::post('/{section}', [PenilaianController::class, 'store'])->name('penilaian.store');
         Route::get('/{section}', [PenilaianController::class, 'show'])->name('penilaian.section');
         // Route::get('/{penilaian}', [PenilaianController::class, 'show'])->name('penilaian.show');
         Route::get('/{penilaian}/edit', [PenilaianController::class, 'edit'])->name('penilaian.edit');
+
     });
 
     // Route::post('/penilaian/{section}', [PenilaianController::class, 'store'])
