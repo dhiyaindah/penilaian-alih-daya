@@ -14,12 +14,13 @@ class PenilaianController extends Controller
 {
     public function index()
     {
-        $kebersihan = TimAlihDaya::where('jabatan', 'kebersihan')->get();
+        $pegawais = TimAlihDaya::where('jabatan', 'kebersihan')->get();
         $taman = TimAlihDaya::where('jabatan', 'taman')->get();
         $keamanan = TimAlihDaya::where('jabatan', 'keamanan')->get();
         $sopir = TimAlihDaya::where('jabatan', 'sopir')->get();
+        $penilai = Pegawai::orderBy('nama')->get();
 
-        return view('admin.penilaian.index', compact('kebersihan', 'taman', 'keamanan', 'sopir'));
+        return view('admin.penilaian.kebersihan', compact('pegawais', 'taman', 'keamanan', 'sopir', 'penilai'));
     }
 
     public function create($id)
@@ -31,100 +32,100 @@ class PenilaianController extends Controller
         return view('admin.penilaian.create', compact('alih_daya', 'kriterias', 'totalSkor'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $section)
     {
-        // Cari periode aktif
-        $periodeAktif = PeriodePenilaian::where('status', 'aktif')->first();
+        // dd(
+        //     'request', $request->penilai_id,
+        //     'session', session('penilai')
+        // );
 
-        if (!$periodeAktif) {
-            return back()->withErrors(['msg' => 'Tidak ada periode penilaian yang aktif.'])->withInput();
+        if ($request->filled('penilai_id')) { 
+            session()->put('penilai.penilai_id', $request->penilai_id); 
+            session()->put( 'penilai.penilai_nip', Pegawai::find($request->penilai_id)?->nip ); 
         }
 
-        // ------------------------------
-        // 1. VALIDASI INPUT
-        // ------------------------------
-        $validated = $request->validate([
-            'alih_daya_id'     => 'required|exists:tim_alih_daya,id',
-            'penilai_id'       => 'required|exists:users,id',
-            'kriteria_id'      => 'required|array',
-            'kriteria_id.*'    => 'exists:kriteria_penilaian,id',
-
-            'nilai'            => 'required|array',
-            'nilai.*'          => 'required|integer|min:0',
-
-            'catatan'          => 'nullable|array',
-            'catatan.*'        => 'nullable|string',
-
-            'rekomendasi'      => 'required|string',
-            'rekomendasi_lain_teks' => 'nullable|string'
+        /* ===============================
+        * 2. SIMPAN DATA SECTION
+        * =============================== */
+        session()->put("penilaian.$section", [
+            'skor'    => $request->input('skor', []),
+            'catatan'=> $request->input('catatan', []),
         ]);
 
+        /* ===============================
+        * 3. FLOW SECTION
+        * =============================== */
+        $flow = [
+            'kebersihan' => ['prev' => null, 'next' => 'taman'],
+            'taman'      => ['prev' => 'kebersihan', 'next' => 'keamanan'],
+            'keamanan'   => ['prev' => 'taman', 'next' => 'sopir'],
+            'sopir'      => ['prev' => 'keamanan', 'next' => null],
+        ];
 
-        // ------------------------------
-        // 2. HITUNG TOTAL SKOR MAKS DARI DB
-        // ------------------------------
-        $totalSkorMaks = KriteriaPenilaian::whereIn('id', $validated['kriteria_id'])
-                            ->sum('skor_maks');
+        $action = $request->action;
 
-        // ------------------------------
-        // 3. HITUNG TOTAL SKOR DIPEROLEH & NILAI AKHIR (0–100)
-        // ------------------------------
-        $totalSkorDiperoleh = array_sum($validated['nilai']);
-
-        $nilaiAkhir = ($totalSkorDiperoleh / $totalSkorMaks) * 100;
-
-        // ------------------------------
-        // 4. PROSES REKOMENDASI
-        // ------------------------------
-        if ($validated['rekomendasi'] === 'rekomendasi_lain') {
-            $rekomendasi = 'lainnya';
-            $rekomendasiLain = $validated['rekomendasi_lain_teks'];
-        } else {
-            $map = [
-                'dilanjutkan' => 'dilanjutkan',
-                'perlu_pembinaan' => 'perlu pembinaan',
-                'penggantian_tenaga' => 'penggantian tenaga',
-                'evaluasi_kontrak' => 'evaluasi kontrak dengan vendor',
-            ];
-
-            $rekomendasi = $map[$validated['rekomendasi']] ?? 'dilanjutkan';
-            $rekomendasiLain = null;
+        /* ===============================
+        * 4. PREV
+        * =============================== */
+        if ($action === 'prev') {
+            return redirect()->route(
+                'penilaian.section',
+                $flow[$section]['prev']
+            );
         }
 
-        // ------------------------------
-        // 5. SIMPAN PENILAIAN (Nilai Akhir)
-        // ------------------------------
-        $penilaian = Penilaian::create([
-            'alih_daya_id'   => $validated['alih_daya_id'],
-            'pegawai_id'     => $validated['penilai_id'],
-            'periode_id'     => $periodeAktif->id,
-            'total_skor'     => round($nilaiAkhir, 2), // simpan 2 desimal (contoh: 87.50)
-            'rekomendasi'    => $rekomendasi,
-            'rekomendasi_lain' => $rekomendasiLain,
-        ]);
+        /* ===============================
+        * 5. NEXT
+        * =============================== */
+        if ($action === 'next') {
 
+            // 🔚 SECTION TERAKHIR
+            if ($section === 'sopir') {
 
-        // ------------------------------
-        // 6. SIMPAN DETAIL PENILAIAN
-        // ------------------------------
-        foreach ($validated['kriteria_id'] as $i => $kriteriaId) {
-            DetailPenilaian::create([
-                'penilaian_id' => $penilaian->id,
-                'kriteria_id'  => $kriteriaId,
-                'skor'         => $validated['nilai'][$i],
-                'catatan'      => $validated['catatan'][$i] ?? null,
-            ]);
+                $penilai   = session('penilai');
+                $penilaian = session('penilaian');
+
+                foreach ($penilaian as $sectionName => $data) {
+
+                    if (!isset($data['skor'])) continue;
+
+                    foreach ($data['skor'] as $alihDayaId => $skor) {
+                        Penilaian::create([
+                            'pegawai_id'   => $penilai['penilai_id'],
+                            'alih_daya_id' => $alihDayaId,
+                            'skor'         => $skor,
+                            'catatan'      => $data['catatan'][$alihDayaId] ?? null,
+                        ]);
+                    }
+                }
+
+                // BERSIHKAN SESSION
+                session()->forget(['penilai', 'penilaian']);
+
+                return redirect()
+                    ->route('penilaian.index')
+                    ->with('success', 'Penilaian berhasil disimpan!');
+            }
+
+            // LANJUT SECTION
+            return redirect()->route(
+                'penilaian.section',
+                $flow[$section]['next']
+            );
         }
-
-        return redirect()
-            ->route('penilaian.index')
-            ->with('success', 'Penilaian berhasil disimpan!');
     }
 
-    public function show($id)
+    public function show($section)
     {
-        // $penilaian = Penilaian::with('pegawai', 'penilai')->findOrFail($id);
-        // return view('admin.penilaian.show', compact('penilaian'));
+        $data = session("penilaian.$section", []);
+        $pegawais = TimAlihDaya::where('jabatan', $section)->get();
+        $penilai = Pegawai::orderBy('nama')->get();
+
+        return view("admin.penilaian.$section", [
+            'data' => $data,
+            'pegawais' => $pegawais,
+            'penilai' => $penilai,
+        ]);
     }
 
     public function destroy($id)

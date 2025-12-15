@@ -18,52 +18,18 @@
                 <h5>Balai Bahasa Provinsi Jawa Tengah</h5>
             </div>
 
-            <form method="POST" action="{{ route('penilaian.store', 'kebersihan') }}">
+            <form method="POST" action="{{ route('penilaian.store', 'taman') }}">
                 @csrf
-                <input type="hidden" name="next_section" value="taman">
-                <input type="hidden" name="current_section" value="kebersihan">
-
-                <!-- DATA PENILAI -->
-<div class="card mb-4">
-    <div class="card-body">
-        <h6 class="fw-bold mb-3">Data Penilai</h6>
-
-        <div class="row">
-            <!-- Nama Penilai -->
-            <div class="col-md-6">
-                <label class="form-label">Nama Penilai</label>
-                <select name="penilai_id" id="penilai_id"
-                        class="form-select" required>
-                    <option value="">-- Pilih Penilai --</option>
-                    @foreach($penilai as $p)
-                        <option value="{{ $p->id }}"
-                                data-nip="{{ $p->nip }}"
-                                {{ session('penilai.penilai_id') == $p->id ? 'selected' : '' }}>
-                            {{ $p->nama }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- NIP -->
-            <div class="col-md-6">
-                <label class="form-label">NIP</label>
-                <input type="text"
-                       id="nip_penilai"
-                       class="form-control"
-                       value="{{ session('penilai.penilai_nip') }}"
-                       readonly>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <input type="hidden" name="next_section" value="keamanan">
+                <input type="hidden" name="current_section" value="taman">
+                <!-- <input type="hidden" name="penilai_id" value="{{ session('penilai.id') }}"> -->
 
                 <!-- Bagian untuk Foto Pegawai -->
                 <div class="row mb-5">
-                    <!-- Bidang Kebersihan -->
+                    <!-- Bidang taman -->
                     @if($pegawais->count() > 0)
                     <div class="col-md-12 mb-4">
-                        <h5 class="fw-bold mb-3 text-center">Bidang Kebersihan</h5>
+                        <h5 class="fw-bold mb-3 text-center">Bidang taman</h5>
                         <div class="row text-center">
                             @foreach($pegawais as $pegawai)
                             <div class="col-md-3 mb-3">
@@ -141,7 +107,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <!-- Bidang Kebersihan -->
+                                            <!-- Bidang taman -->
                                             @foreach($pegawais as $pegawai)
                                             <tr>
                                                 <td class="fw-bold">{{ $pegawai->nama }}</td>
@@ -153,7 +119,7 @@
                                                                 name="skor[{{ $pegawai->id }}]"
                                                                 value="{{ $i }}"
                                                                 {{ (isset($data['skor'][$pegawai->id]) && $data['skor'][$pegawai->id] == $i) ? 'checked' : '' }}>
-                                                            <label class="form-check-label" for="kebersihan_{{ $pegawai->id }}_{{ $i }}">
+                                                            <label class="form-check-label" for="taman_{{ $pegawai->id }}_{{ $i }}">
                                                                 {{ $i }}
                                                             </label>
                                                         </div>
@@ -173,10 +139,10 @@
 
                                 <!-- Tombol Navigasi -->
                                 <div class="d-flex justify-content-between mt-4">
-                                    <!-- <button type="submit" name="action" value="prev"
+                                    <button type="submit" name="action" value="prev"
                                             class="btn btn-secondary">
                                         Sebelumnya
-                                    </button> -->
+                                    </button>
 
                                     <button type="submit" name="action" value="next"
                                             class="btn btn-primary">
@@ -192,13 +158,6 @@
         </div>
     </div>
 </div>
-<script>
-document.getElementById('penilai_id').addEventListener('change', function () {
-    const selected = this.options[this.selectedIndex];
-    const nip = selected.getAttribute('data-nip') || '';
-    document.getElementById('nip_penilai').value = nip;
-});
-</script>
 
 <style>
     .form-check-input {

@@ -30,10 +30,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         Route::get('/', [PenilaianController::class, 'index'])->name('penilaian.index');
         Route::get('/rekap', [PenilaianController::class, 'rekap'])->name('penilaian.rekap');
         Route::get('/create/{id}', [PenilaianController::class, 'create'])->name('penilaian.create');
-        Route::post('/', [PenilaianController::class, 'store'])->name('penilaian.store');
-        Route::get('/{penilaian}', [PenilaianController::class, 'show'])->name('penilaian.show');
+        Route::post('/{section}', [PenilaianController::class, 'store'])->name('penilaian.store');
+        Route::get('/{section}', [PenilaianController::class, 'show'])->name('penilaian.section');
+        // Route::get('/{penilaian}', [PenilaianController::class, 'show'])->name('penilaian.show');
         Route::get('/{penilaian}/edit', [PenilaianController::class, 'edit'])->name('penilaian.edit');
     });
+
+    // Route::post('/penilaian/{section}', [PenilaianController::class, 'store'])
+    // ->name('penilaian.store');
+
+    // Route::get('/penilaian/{section}', [PenilaianController::class, 'show'])
+    //     ->name('penilaian.section');
+
 });
 
 // routes/web.php

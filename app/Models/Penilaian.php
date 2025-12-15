@@ -11,10 +11,8 @@ class Penilaian extends Model
     protected $fillable = [
         'alih_daya_id',
         'pegawai_id',
-        'periode_id',
-        'total_skor',
-        'rekomendasi',
-        'rekomendasi_lain',
+        'skor',
+        'catatan',
     ];
 
     // =====================
@@ -31,17 +29,5 @@ class Penilaian extends Model
     public function pegawai()
     {
         return $this->belongsTo(Pegawai::class, 'pegawai_id');
-    }
-
-    // Periode penilaian
-    public function periode()
-    {
-        return $this->belongsTo(PeriodePenilaian::class, 'periode_id');
-    }
-
-    // Detail skor per kriteria
-    public function detail()
-    {
-        return $this->hasMany(DetailPenilaian::class, 'penilaian_id');
     }
 }
