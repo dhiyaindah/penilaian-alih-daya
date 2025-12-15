@@ -10,26 +10,56 @@
 <div class="container">
 
     {{-- HEADER --}}
-    <div class="text-center mb-5">
-        <h6 class="fw-bold mb-1 text-uppercase">Kementerian Pendidikan Dasar dan Menengah</h6>
-        <h6 class="fw-bold mb-1 text-uppercase">Republik Indonesia</h6>
-        <h4 class="mt-3 fw-bold text-primary">Penilaian Alih Daya Tahun 2025</h4>
-        <p class="mb-0 fw-semibold">Badan Pengembangan dan Pembinaan Bahasa</p>
-        <p class="text-muted">Balai Bahasa Provinsi Jawa Tengah</p>
+<div class="card mb-5 shadow-sm border-0">
+    <!-- Bagian Atas (biru) -->
+    <div class="d-flex align-items-center p-3 rounded-top"
+         style="background-color:#6fa0cf;">
+
+        <!-- Logo -->
+        <div class="me-3">
+            <img src="{{ asset('admin/logo-kemdikbud.png') }}"
+                 alt="Logo Kemdikbud"
+                 style="width:70px; height:auto;">
+        </div>
+
+        <!-- Judul Instansi -->
+        <div class="text-center flex-grow-1">
+            <h5 class="mb-0 fw-bold text-uppercase text-dark">
+                Kementerian Pendidikan Dasar dan Menengah
+            </h5>
+            <h6 class="mb-0 fw-bold text-uppercase text-dark">
+                Republik Indonesia
+            </h6>
+        </div>
     </div>
+
+    <!-- Bagian Bawah (putih) -->
+    <div class="card-body">
+        <h4 class="fw-bold mb-1">
+            Penilaian Alih Daya 2025
+        </h4>
+        <p class="mb-0 fw-semibold">
+            Badan Pengembangan dan Pembinaan Bahasa
+        </p>
+        <p class="mb-0 text-muted">
+            Balai Bahasa Provinsi Jawa Tengah
+        </p>
+    </div>
+</div>
+
 
     <form method="POST" action="{{ route('penilaian.store') }}">
         @csrf
 
         {{-- FOTO PEGAWAI --}}
-        @if($kebersihan->count() > 0)
+        @if($keamanan->count() > 0)
         <div class="mb-5">
             <h5 class="fw-bold mb-3 text-center">
-                <span class="badge bg-primary">Bidang Kebersihan</span>
+                <span class="badge bg-primary">Bidang Keamanan</span>
             </h5>
 
             <div class="row g-4 justify-content-center">
-                @foreach($kebersihan as $pegawai)
+                @foreach($keamanan as $pegawai)
                 <div class="col-6 col-md-3 col-lg-2 text-center">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body p-3">
@@ -92,10 +122,9 @@
                                 <th width="50%">Catatan / Temuan</th>
                             </tr>
                         </thead>
-                        <tbody>
 
-                        {{-- KEBERSIHAN --}}
-                        @foreach($kebersihan as $pegawai)
+                        {{-- KEAMANAN --}}
+                        @foreach($keamanan as $pegawai)
                         <tr>
                             <td class="fw-semibold">{{ $pegawai->nama }}</td>
                             <td>
@@ -105,10 +134,10 @@
                                         <input class="form-check-input"
                                                type="radio"
                                                name="nilai[{{ $pegawai->id }}]"
-                                               id="kebersihan_{{ $pegawai->id }}_{{ $i }}"
+                                               id="keamanan_{{ $pegawai->id }}_{{ $i }}"
                                                value="{{ $i }}">
                                         <label class="form-check-label"
-                                               for="kebersihan_{{ $pegawai->id }}_{{ $i }}">
+                                               for="keamanan_{{ $pegawai->id }}_{{ $i }}">
                                             {{ $i }}
                                         </label>
                                     </div>
@@ -125,13 +154,11 @@
                         @endforeach
 
 
-
-
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Tombol Navigasi --> <div class="d-flex justify-content-between mt-4"> <button type="button" class="btn btn-secondary" onclick="history.back()"> Sebelumnya </button> <button type="button" class="btn btn-primary" onclick="window.location.href='{{ route('admin.penilaian.index2') }}'"> Selanjutnya </button> </div>
+                <!-- Tombol Navigasi --> <div class="d-flex justify-content-between mt-4"> <button type="button" class="btn btn-secondary" onclick="history.back()"> Sebelumnya </button> <button type="button" class="btn btn-primary" onclick="window.location.href='{{ route('admin.penilaian.index3') }}'"> Selanjutnya </button> </div>
             </div>
         </div>
     </form>
