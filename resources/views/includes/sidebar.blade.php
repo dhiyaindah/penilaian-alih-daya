@@ -1,7 +1,10 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
-        <a href="index.html" class="app-brand-link">
-            <span class="app-brand-text demo menu-text fw-bolder ms-2">Penilaian</span>
+        <a href="{{ url('/') }}" class="app-brand-link">
+            <span class="app-brand-text demo menu-text fw-bolder ms-2 text-wrap" 
+                  style="font-size: 1.1rem; line-height: 1.3;">
+                Sistem Penilaian<br>Kinerja Alih Daya
+            </span>
         </a>
 
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -36,12 +39,20 @@
                     <div data-i18n="Analytics">Data Tim Alih Daya</div>
                 </a>
             </li>
-            <li class="menu-item {{ Request::is('admin/penilaian*') ? 'active' : '' }}">
+            <li class="menu-item 
+                {{ Request::is('admin/penilaian') && !Request::is('admin/penilaian/rekap*') ? 'active' : '' }}">
                 <a href="{{ route('penilaian.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-list-check"></i>
-                    <div data-i18n="Analytics">Penilaian Kinerja</div>
+                    <div>Penilaian Kinerja</div>
                 </a>
             </li>
+            <li class="menu-item {{ Request::is('admin/penilaian/rekap*') ? 'active' : '' }}">
+                <a href="{{ route('penilaian.rekap') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-list-check"></i>
+                    <div data-i18n="Analytics">Rekap Penilaian</div>
+                </a>
+            </li>
+            
 
         @endif
     </ul>

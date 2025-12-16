@@ -39,12 +39,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         Route::get('/halaman-3', [PenilaianController::class, 'index3'])->name('admin.penilaian.index3');
         Route::get('/halaman-4', [PenilaianController::class, 'index4'])->name('admin.penilaian.index4');
         Route::get('/rekap', [PenilaianController::class, 'rekap'])->name('penilaian.rekap');
+        Route::get('/penilaian/detail', [PenilaianController::class, 'detail'])->name('penilaian.detail');
         Route::get('/create/{id}', [PenilaianController::class, 'create'])->name('penilaian.create');
         Route::post('/{section}', [PenilaianController::class, 'store'])->name('penilaian.store');
         Route::get('/{section}', [PenilaianController::class, 'show'])->name('penilaian.section');
         // Route::get('/{penilaian}', [PenilaianController::class, 'show'])->name('penilaian.show');
         Route::get('/{penilaian}/edit', [PenilaianController::class, 'edit'])->name('penilaian.edit');
-
+        Route::get('/penilaian/export-perpegawai', [PenilaianController::class, 'exportExcel'])->name('penilaian.export.perpegawai');
+        Route::get('/penilaian/export', [PenilaianController::class, 'export'])->name('penilaian.export.excel');
     });
 
     // Route::post('/penilaian/{section}', [PenilaianController::class, 'store'])
