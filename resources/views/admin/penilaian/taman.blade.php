@@ -10,23 +10,41 @@
 <div class="container">
 
     {{-- HEADER --}}
-    <div class="text-center mb-5">
-        <h6 class="fw-bold mb-1 text-uppercase">
-            Kementerian Pendidikan Dasar dan Menengah
-        </h6>
-        <h6 class="fw-bold mb-1 text-uppercase">
-            Republik Indonesia
-        </h6>
-        <h4 class="mt-3 fw-bold text-primary">
-            Penilaian Alih Daya Tahun 2025
-        </h4>
-        <p class="mb-0 fw-semibold">
-            Badan Pengembangan dan Pembinaan Bahasa
-        </p>
-        <p class="text-muted">
-            Balai Bahasa Provinsi Jawa Tengah
-        </p>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-center gap-4 flex-wrap">
+
+            {{-- LOGO --}}
+            <div>
+                <img src="{{ asset('admin/Logo-Kemdikbud.png') }}"
+                     alt="Logo"
+                     style="height: 90px;">
+            </div>
+
+            {{-- TEXT --}}
+            <div class="text-center">
+                <h6 class="fw-bold mb-1 text-uppercase text-secondary">
+                    Kementerian Pendidikan Dasar dan Menengah
+                </h6>
+                <h6 class="fw-bold mb-2 text-uppercase text-secondary">
+                    Republik Indonesia
+                </h6>
+
+                <h3 class="fw-bold text-primary mb-2">
+                    Penilaian Alih Daya Tahun 2025
+                </h3>
+
+                <div class="fw-semibold">
+                    Badan Pengembangan dan Pembinaan Bahasa
+                </div>
+                <div class="text-muted">
+                    Balai Bahasa Provinsi Jawa Tengah
+                </div>
+            </div>
+
+        </div>
     </div>
+</div>
 
     <form method="POST" action="{{ route('penilaian.store', 'taman') }}">
         @csrf
@@ -174,17 +192,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const nextBtn = document.querySelector('button[name="action"][value="next"]');
-    
+
     if (nextBtn) {
         nextBtn.addEventListener('click', function(e) {
             let isValid = true;
-            
+
             // Cek setiap grup radio
             const radioNames = new Set();
             document.querySelectorAll('input[name^="skor["]').forEach(radio => {
                 radioNames.add(radio.name);
             });
-            
+
             // Validasi setiap grup
             for (const name of radioNames) {
                 const radios = document.querySelectorAll(`input[name="${name}"]:checked`);
@@ -193,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
                 }
             }
-            
+
             if (!isValid) {
                 e.preventDefault();
                 alert('Harap isi semua nilai untuk setiap pegawai sebelum melanjutkan.');
