@@ -15,12 +15,11 @@ class PenilaianController extends Controller
     public function index()
     {
         $pegawais = TimAlihDaya::where('jabatan', 'kebersihan')->get();
-        $taman = TimAlihDaya::where('jabatan', 'taman')->get();
-        $keamanan = TimAlihDaya::where('jabatan', 'keamanan')->get();
-        $sopir = TimAlihDaya::where('jabatan', 'sopir')->get();
-        $penilai = Pegawai::orderBy('nama')->get();
+        
+        // Ambil pegawai yang belum menilai (belum ada record di tabel penilaian)
+        $penilai = Pegawai::whereDoesntHave('penilaian')->orderBy('nama')->get();
 
-        return view('admin.penilaian.kebersihan', compact('pegawais', 'taman', 'keamanan', 'sopir', 'penilai'));
+        return view('admin.penilaian.kebersihan', compact('pegawais', 'penilai'));
     }
 
     public function index2()
@@ -74,6 +73,18 @@ class PenilaianController extends Controller
             session()->put('penilai.penilai_id', $request->penilai_id); 
             session()->put( 'penilai.penilai_nip', Pegawai::find($request->penilai_id)?->nip ); 
         }
+
+        // ===== VALIDASI: semua pegawai harus diisi skor =====
+        // Ambil pegawai sesuai section
+        // $pegawais = TimAlihDaya::where('jabatan', $section)->get(); // asumsi ada kolom 'bidang'
+        // if ($request->action === 'next') {
+        //     $missing = collect($pegawais)->pluck('id')->filter(fn($id) => !isset($skor[$id]))->toArray();
+        //     if (!empty($missing)) {
+        //         return back()
+        //             ->withInput()
+        //             ->with('error', '⚠️ Semua pegawai wajib diberi nilai sebelum lanjut.');
+        //     }
+        // }
 
         /* ===============================
         * 2. SIMPAN DATA SECTION
