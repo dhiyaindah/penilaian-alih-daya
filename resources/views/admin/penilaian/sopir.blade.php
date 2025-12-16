@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item active text-primary fw-semibold">
-        Penilaian Kinerja Pegawai Alih Daya
-    </li>
+<li class="breadcrumb-item active text-primary fw-semibold">
+    Penilaian Kinerja Pegawai Alih Daya
+</li>
 @endsection
 
 @section('content')
@@ -14,6 +14,7 @@
     <div class="card-body">
         <div class="d-flex align-items-center justify-content-center gap-4 flex-wrap">
             <img src="{{ asset('admin/Logo-Kemdikbud.png') }}" style="height:90px">
+
             <div class="text-center">
                 <h6 class="fw-bold mb-1 text-uppercase text-secondary">
                     Kementerian Pendidikan Dasar dan Menengah
@@ -21,9 +22,11 @@
                 <h6 class="fw-bold mb-2 text-uppercase text-secondary">
                     Republik Indonesia
                 </h6>
+
                 <h3 class="fw-bold text-primary mb-2">
                     Penilaian Alih Daya Tahun 2025
                 </h3>
+
                 <div class="fw-semibold">
                     Badan Pengembangan dan Pembinaan Bahasa
                 </div>
@@ -48,17 +51,22 @@
 
     <div class="row g-4 justify-content-center">
         @foreach($pegawais as $pegawai)
-        <div class="col-6 col-md-3 col-lg-2 text-center">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-3">
-                    <img src="{{ $pegawai->foto
-                        ? asset('storage/'.$pegawai->foto)
-                        : 'https://ui-avatars.com/api/?name='.urlencode($pegawai->nama) }}"
-                        class="rounded mb-2"
-                        style="width:120px;height:120px;object-fit:cover">
+        <div class="col-6 col-md-3 col-lg-2">
+            <div class="card border-0 shadow-sm h-100 text-center pegawai-card">
+                <div class="card-body p-3 d-flex flex-column align-items-center">
+
+                    <div class="foto-frame mb-3">
+                        <img
+                            src="{{ $pegawai->foto
+                                ? asset('storage/'.$pegawai->foto)
+                                : 'https://ui-avatars.com/api/?name='.urlencode($pegawai->nama).'&background=6c757d&color=ffffff&size=256' }}"
+                            alt="{{ $pegawai->nama }}">
+                    </div>
+
                     <div class="fw-semibold small">
                         {{ $pegawai->nama }}
                     </div>
+
                 </div>
             </div>
         </div>
@@ -83,6 +91,7 @@
 @foreach($pegawais as $pegawai)
 <tr>
     <td class="fw-semibold">{{ $pegawai->nama }}</td>
+
     <td>
         <div class="d-flex justify-content-center gap-3">
             @for($i=1;$i<=5;$i++)
@@ -90,16 +99,19 @@
                 <input class="form-check-input"
                        type="radio"
                        name="skor[{{ $pegawai->id }}]"
-                       value="{{ $i }}">
+                       value="{{ $i }}"
+                       required>
                 <label class="form-check-label">{{ $i }}</label>
             </div>
             @endfor
         </div>
     </td>
+
     <td>
         <textarea class="form-control form-control-sm"
                   name="catatan[{{ $pegawai->id }}]"
-                  rows="2"></textarea>
+                  rows="2"
+                  placeholder="Masukkan catatan..."></textarea>
     </td>
 </tr>
 @endforeach
@@ -130,11 +142,12 @@
     <canvas id="signature-pad" width="400" height="150"
         style="border:1px solid #ccc;border-radius:6px"></canvas>
     <input type="hidden" name="tanda_tangan_draw" id="ttd_draw">
+
     <div class="mt-2">
         <button type="button"
                 class="btn btn-sm btn-outline-danger"
                 onclick="clearSignature()">
-            Hapus
+            Hapus Tanda Tangan
         </button>
     </div>
 </div>
@@ -168,11 +181,10 @@
 </form>
 </div>
 
-{{-- ================= SCRIPT (FIX FINAL) ================= --}}
+{{-- ================= SCRIPT ================= --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* ================= CANVAS ================= */
     const canvas = document.getElementById('signature-pad');
     const ctx = canvas.getContext('2d');
     let drawing = false;
@@ -222,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('ttd_draw').value = '';
     };
 
-    /* ================= CEK CANVAS KOSONG (ANTI BOBOB) ================= */
     function isCanvasBlank(canvas) {
         const blank = document.createElement('canvas');
         blank.width = canvas.width;
@@ -230,15 +241,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return canvas.toDataURL() === blank.toDataURL();
     }
 
-    /* ================= MODE TOGGLE ================= */
     const drawArea = document.getElementById('draw-area');
     const typeArea = document.getElementById('type-area');
     const ttdType = document.getElementById('ttd_type');
 
     document.querySelectorAll('input[name="ttd_mode"]').forEach(radio => {
         radio.addEventListener('change', function () {
-            clearSignature(); // 🔥 RESET WAJIB
-
+            clearSignature();
             if (this.value === 'draw') {
                 drawArea.classList.remove('d-none');
                 typeArea.classList.add('d-none');
@@ -250,46 +259,58 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    /* ================= VALIDASI FORM ================= */
-    const submitBtn = document.querySelector('button[value="next"]');
+    document.querySelector('button[value="next"]').addEventListener('click', function(e){
 
-    submitBtn.addEventListener('click', function (e) {
-
-        /* --- VALIDASI NILAI --- */
-        const radioGroups = new Set();
+        const radioNames = new Set();
         document.querySelectorAll('input[name^="skor["]').forEach(r => {
-            radioGroups.add(r.name);
+            radioNames.add(r.name);
         });
 
-        for (const name of radioGroups) {
+        for (const name of radioNames) {
             if (!document.querySelector(`input[name="${name}"]:checked`)) {
-                alert('Harap isi semua nilai untuk setiap pegawai sebelum melanjutkan.');
+                alert('Harap isi semua nilai untuk setiap pegawai.');
                 e.preventDefault();
                 return;
             }
         }
 
-        /* --- VALIDASI TTD --- */
         const mode = document.querySelector('input[name="ttd_mode"]:checked').value;
 
-        if (mode === 'draw') {
-            if (isCanvasBlank(canvas)) {
-                alert('Tanda tangan belum digambar.');
-                e.preventDefault();
-                return;
-            }
+        if (mode === 'draw' && isCanvasBlank(canvas)) {
+            alert('Tanda tangan belum digambar.');
+            e.preventDefault();
         }
 
-        if (mode === 'type') {
-            if (!ttdType.value.trim()) {
-                alert('Harap isi nama penilai.');
-                e.preventDefault();
-                return;
-            }
+        if (mode === 'type' && !ttdType.value.trim()) {
+            alert('Nama penilai wajib diisi.');
+            e.preventDefault();
         }
-
     });
-
 });
 </script>
+
+<style>
+.pegawai-card { min-height: 240px; }
+
+.foto-frame {
+    width:120px;
+    height:150px;
+    background:#f1f3f5;
+    border-radius:8px;
+    overflow:hidden;
+}
+
+.foto-frame img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.form-check-input,
+.form-check-label {
+    cursor:pointer;
+}
+
+textarea { resize:vertical; }
+</style>
 @endsection
