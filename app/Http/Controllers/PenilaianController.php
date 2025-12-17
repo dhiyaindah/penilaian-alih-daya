@@ -18,7 +18,7 @@ class PenilaianController extends Controller
     public function index()
     {
         $pegawais = TimAlihDaya::where('jabatan', 'kebersihan')->get();
-        
+
         // Ambil pegawai yang belum menilai (belum ada record di tabel penilaian)
         $penilai = Pegawai::whereDoesntHave('penilaian')->orderBy('nama')->get();
 
@@ -72,9 +72,9 @@ class PenilaianController extends Controller
         //     'session', session('penilai')
         // );
 
-        if ($request->filled('pegawai_id')) { 
-            session()->put('penilai.pegawai_id', $request->pegawai_id); 
-            session()->put( 'penilai.penilai_nip', Pegawai::find($request->pegawai_id)?->nip ); 
+        if ($request->filled('pegawai_id')) {
+            session()->put('penilai.pegawai_id', $request->pegawai_id);
+            session()->put( 'penilai.penilai_nip', Pegawai::find($request->pegawai_id)?->nip );
         }
 
         // ===== VALIDASI: semua pegawai harus diisi skor =====
@@ -198,7 +198,7 @@ class PenilaianController extends Controller
             )
             ->orderBy('tim_alih_daya.jabatan')
             ->orderBy('tim_alih_daya.nama')
-            ->paginate(50); 
+            ->paginate(50);
 
         return view('admin.penilaian.rekap', compact('rekap'));
     }
@@ -245,24 +245,24 @@ class PenilaianController extends Controller
         // Handle grouping
         if ($request->filled('group_by')) {
             $penilaian = $query->orderBy('penilaian.created_at', 'desc')->get();
-            
+
             // Group data berdasarkan pilihan
             $groupedData = collect();
-            
+
             switch ($request->group_by) {
                 case 'alih_daya':
                     $groupedData = $penilaian->groupBy('alih_daya_id');
                     break;
-                    
+
                 case 'bidang':
                     $groupedData = $penilaian->groupBy('jabatan');
                     break;
-                    
+
                 case 'penilai':
                     $groupedData = $penilaian->groupBy('pegawai_id');
                     break;
             }
-            
+
             $penilaian = $query->paginate(50); // Untuk pagination tetap
         } else {
             $penilaian = $query->orderBy('penilaian.created_at', 'desc')->paginate(50);
@@ -274,16 +274,16 @@ class PenilaianController extends Controller
             ->select('id', 'nama', 'jabatan')
             ->orderBy('nama')
             ->get();
-            
+
         $penilaiList = DB::table('pegawai')
             ->select('id', 'nama')
             ->orderBy('nama')
             ->get();
 
         return view('admin.penilaian.detail', compact(
-            'penilaian', 
-            'groupedData', 
-            'pegawaiList', 
+            'penilaian',
+            'groupedData',
+            'pegawaiList',
             'penilaiList'
         ));
     }
@@ -293,4 +293,39 @@ class PenilaianController extends Controller
         $filename = 'penilaian-per-pegawai-' . date('Y-m-d') . '.xlsx';
         return Excel::download(new PenilaianPerPegawaiExport(), $filename);
     }
+
+    // ============================
+// PUBLIK (TANPA LOGIN)
+// ============================
+public function publicSection($section)
+{
+    if (!in_array($section, ['kebersihan', 'taman', 'keamanan', 'sopir'])) {
+        abort(404);
+    }
+
+    $pegawais = TimAlihDaya::where('jabatan', $section)->get();
+
+    return view("public.$section", compact('pegawais', 'section'));
+}
+
+public function storePublic(Request $request)
+{
+    $request->validate([
+        'alih_daya_id' => 'required|array',
+        'skor'         => 'required|array',
+        'section'      => 'required'
+    ]);
+
+    foreach ($request->skor as $alihDayaId => $skor) {
+        Penilaian::create([
+            'pegawai_id'   => null, // karena publik
+            'alih_daya_id' => $alihDayaId,
+            'skor'         => $skor,
+            'catatan'      => $request->catatan[$alihDayaId] ?? null,
+        ]);
+    }
+
+    return back()->with('success', 'Penilaian berhasil dikirim');
+}
+
 }

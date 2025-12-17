@@ -5,7 +5,20 @@ use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\TimAlihDayaController;
+use App\Http\Controllers\PegawaiPenilaianController;
 use Illuminate\Support\Facades\Route;
+
+Route::prefix('penilaian')->group(function () {
+
+    Route::get('/kebersihan', [PegawaiPenilaianController::class, 'kebersihan']);
+    Route::get('/keamanan', [PegawaiPenilaianController::class, 'keamanan']);
+    Route::get('/sopir', [PegawaiPenilaianController::class, 'sopir']);
+    Route::get('/taman', [PegawaiPenilaianController::class, 'taman']);
+
+    // 🔥 SUBMIT FORM PEGAWAI (PUBLIC)
+    Route::post('{section}', [PegawaiPenilaianController::class, 'store'])
+    ->name('penilaian.pegawai.store');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/', [AuthController::class, 'login'])->name('login');
@@ -55,7 +68,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Route::get('/penilaian/{section}', [PenilaianController::class, 'show'])
     //     ->name('penilaian.section');
 
+
+
 });
+
 
 // routes/web.php
 
