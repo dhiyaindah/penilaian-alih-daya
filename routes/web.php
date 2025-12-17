@@ -8,16 +8,19 @@ use App\Http\Controllers\TimAlihDayaController;
 use App\Http\Controllers\PegawaiPenilaianController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('penilaian')->group(function () {
+Route::prefix('formulir_penilaian')->group(function () {
 
-    Route::get('/kebersihan', [PegawaiPenilaianController::class, 'kebersihan']);
-    Route::get('/keamanan', [PegawaiPenilaianController::class, 'keamanan']);
-    Route::get('/sopir', [PegawaiPenilaianController::class, 'sopir']);
-    Route::get('/taman', [PegawaiPenilaianController::class, 'taman']);
+    Route::get('/', [PegawaiPenilaianController::class, 'index']);
+    // Route::get('/keamanan', [PegawaiPenilaianController::class, 'keamanan']);
+    // Route::get('/sopir', [PegawaiPenilaianController::class, 'sopir']);
+    // Route::get('/taman', [PegawaiPenilaianController::class, 'taman']);
 
-    // 🔥 SUBMIT FORM PEGAWAI (PUBLIC)
-    Route::post('{section}', [PegawaiPenilaianController::class, 'store'])
-    ->name('penilaian.pegawai.store');
+    // Route::post('/{section}', [PenilaianController::class, 'store'])->name('penilaian.pegawai.store');
+
+    // SUBMIT FORM PEGAWAI (PUBLIC)
+    Route::post('/{section}', [PegawaiPenilaianController::class, 'store'])->name('public.penilaian.store');
+    Route::get('/{section}', [PegawaiPenilaianController::class, 'show'])->name('public.penilaian.section');
+    Route::get('/terimakasih', [PegawaiPenilaianController::class, 'terimakasih'])->name('public.penilaian.terimakasih');
 });
 
 Route::middleware('guest')->group(function () {

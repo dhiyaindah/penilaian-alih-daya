@@ -99,8 +99,7 @@
                 <input class="form-check-input"
                        type="radio"
                        name="skor[{{ $pegawai->id }}]"
-                       value="{{ $i }}"
-                       required>
+                       value="{{ $i }}">
                 <label class="form-check-label">{{ $i }}</label>
             </div>
             @endfor

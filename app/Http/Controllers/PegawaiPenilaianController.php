@@ -9,75 +9,52 @@ use Illuminate\Http\Request;
 
 class PegawaiPenilaianController extends Controller
 {
-    /* ===============================
-    | HALAMAN SECTION
-    |===============================*/
-    public function kebersihan()
+    public function index()
     {
-        return $this->section('kebersihan');
+        $pegawais = TimAlihDaya::where('jabatan', 'kebersihan')->get();
+
+        // Ambil pegawai yang belum menilai (belum ada record di tabel penilaian)
+        $penilai = Pegawai::whereDoesntHave('penilaian')->orderBy('nama')->get();
+        $section = 'kebersihan';
+
+        return view('penilaian.kebersihan', compact('pegawais', 'penilai', 'section'));
     }
 
-    public function taman()
-    {
-        return $this->section('taman');
-    }
-
-    public function keamanan()
-    {
-        return $this->section('keamanan');
-    }
-
-    public function sopir()
-    {
-        return $this->section('sopir');
-    }
-
-    private function section($section)
-    {
-        if (!in_array($section, ['kebersihan','taman','keamanan','sopir'])) {
-            abort(404);
-        }
-
-        $pegawais = TimAlihDaya::where('jabatan', $section)->get();
-        $penilai  = Pegawai::orderBy('nama')->get();
-        $data     = session("penilaian.$section", []);
-
-        return view("penilaian.$section", compact(
-            'pegawais',
-            'penilai',
-            'section',
-            'data'
-        ));
-    }
-
-    /* ===============================
-    | SIMPAN & FLOW
-    |===============================*/
     public function store(Request $request, $section)
     {
-        /* ===============================
-        | 1. SIMPAN DATA PENILAI
-        |===============================*/
-        if ($request->filled('penilai_id')) {
-            $penilai = Pegawai::find($request->penilai_id);
+        // dd(
+        //     'request', $request->penilai_id,
+        //     'session', session('skor')
+        // );
 
-            session()->put('penilai', [
-                'pegawai_id'  => $penilai->id,
-                'penilai_nip' => $penilai->nip
-            ]);
+        if ($request->filled('penilai_id')) {
+            session()->put('penilai.penilai_id', $request->penilai_id);
+            session()->put( 'penilai.penilai_nip', Pegawai::find($request->penilai_id)?->nip );
         }
 
+        // ===== VALIDASI: semua pegawai harus diisi skor =====
+        // Ambil pegawai sesuai section
+        // $pegawais = TimAlihDaya::where('jabatan', $section)->get(); // asumsi ada kolom 'bidang'
+        // if ($request->action === 'next') {
+        //     $missing = collect($pegawais)->pluck('id')->filter(fn($id) => !isset($skor[$id]))->toArray();
+        //     if (!empty($missing)) {
+        //         return back()
+        //             ->withInput()
+        //             ->with('error', '⚠️ Semua pegawai wajib diberi nilai sebelum lanjut.');
+        //     }
+        // }
+
         /* ===============================
-        | 2. SIMPAN DATA SECTION
-        |===============================*/
+        * 2. SIMPAN DATA SECTION
+        * =============================== */
         session()->put("penilaian.$section", [
-            'skor'     => $request->input('skor', []),
-            'catatan' => $request->input('catatan', [])
+            'skor'    => $request->input('skor', []),
+            'catatan'=> $request->input('catatan', []),
         ]);
 
         /* ===============================
-        | 3. FLOW SECTION (SAMA ADMIN)
-        |===============================*/
+        * 3. FLOW SECTION
+        * =============================== */
         $flow = [
             'kebersihan' => ['prev' => null, 'next' => 'taman'],
             'taman'      => ['prev' => 'kebersihan', 'next' => 'keamanan'],
@@ -85,21 +62,24 @@ class PegawaiPenilaianController extends Controller
             'sopir'      => ['prev' => 'keamanan', 'next' => null],
         ];
 
+        $action = $request->action;
+
         /* ===============================
-        | 4. PREV
-        |===============================*/
-        if ($request->action === 'prev') {
+        * 4. PREV
+        * =============================== */
+        if ($action === 'prev') {
             return redirect()->route(
-                'penilaian.' . $flow[$section]['prev']
+                'public.penilaian.section',
+                $flow[$section]['prev']
             );
         }
 
         /* ===============================
-        | 5. NEXT / SIMPAN FINAL
-        |===============================*/
-        if ($request->action === 'next') {
+        * 5. NEXT
+        * =============================== */
+        if ($action === 'next') {
 
-            // SECTION TERAKHIR
+            // 🔚 SECTION TERAKHIR
             if ($section === 'sopir') {
 
                 $penilai   = session('penilai');
@@ -111,7 +91,7 @@ class PegawaiPenilaianController extends Controller
 
                     foreach ($data['skor'] as $alihDayaId => $skor) {
                         Penilaian::create([
-                            'pegawai_id'   => $penilai['pegawai_id'],
+                            'pegawai_id'   => $penilai['penilai_id'],
                             'alih_daya_id' => $alihDayaId,
                             'skor'         => $skor,
                             'catatan'      => $data['catatan'][$alihDayaId] ?? null,
@@ -119,13 +99,39 @@ class PegawaiPenilaianController extends Controller
                     }
                 }
 
+                // ambil nama penilai
+                $penilaiData = Pegawai::find($penilai['penilai_id']);
+                session()->flash('nama_penilai', $penilaiData?->nama);
 
+                // bersihkan session utama
+                session()->forget(['penilai', 'penilaian']);
+
+                return redirect()->route('public.penilaian.terimakasih');
             }
 
-
-
+            // LANJUT SECTION
+            return redirect()->route(
+                'public.penilaian.section',
+                $flow[$section]['next']
+            );
         }
+    }
 
-        
+    public function show($section)
+    {
+        $data = session("penilaian.$section", []);
+        $pegawais = TimAlihDaya::where('jabatan', $section)->get();
+        $penilai = Pegawai::orderBy('nama')->get();
+
+        return view("penilaian.$section", [
+            'data' => $data,
+            'pegawais' => $pegawais,
+            'penilai' => $penilai,
+        ]);
+    }
+
+    public function terimakasih(Request $request)
+    {   
+        return view('penilaian.terimakasih');
     }
 }

@@ -68,13 +68,13 @@ class PenilaianController extends Controller
     public function store(Request $request, $section)
     {
         // dd(
-        //     'request', $request->pegawai_id,
-        //     'session', session('penilai')
+        //     'request', $request->penilai_id,
+        //     'session', session('skor')
         // );
 
-        if ($request->filled('pegawai_id')) {
-            session()->put('penilai.pegawai_id', $request->pegawai_id);
-            session()->put( 'penilai.penilai_nip', Pegawai::find($request->pegawai_id)?->nip );
+        if ($request->filled('penilai_id')) {
+            session()->put('penilai.penilai_id', $request->penilai_id);
+            session()->put( 'penilai.penilai_nip', Pegawai::find($request->penilai_id)?->nip );
         }
 
         // ===== VALIDASI: semua pegawai harus diisi skor =====
@@ -136,7 +136,7 @@ class PenilaianController extends Controller
 
                     foreach ($data['skor'] as $alihDayaId => $skor) {
                         Penilaian::create([
-                            'pegawai_id'   => $penilai['pegawai_id'],
+                            'pegawai_id'   => $penilai['penilai_id'],
                             'alih_daya_id' => $alihDayaId,
                             'skor'         => $skor,
                             'catatan'      => $data['catatan'][$alihDayaId] ?? null,

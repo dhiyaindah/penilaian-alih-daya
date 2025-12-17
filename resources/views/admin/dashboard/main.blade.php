@@ -43,7 +43,7 @@
                     <i class="bx bx-group text-white fs-4"></i>
                 </div>
                 <div>
-                    <h6 class="mb-0">Total Alih Daya</h6>
+                    <h6 class="mb-0">Total Pegawai Alih Daya</h6>
                     <h4 class="fw-bold mb-0">{{ $totalAlihDaya }}</h4>
                 </div>
             </div>

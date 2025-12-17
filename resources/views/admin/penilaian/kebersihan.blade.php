@@ -165,16 +165,22 @@
                 <input class="form-check-input"
                        type="radio"
                        name="skor[{{ $pegawai->id }}]"
-                       value="{{ $i }}" required>
-                <label class="form-check-label">{{ $i }}</label>
+                       value="{{ $i }}"
+                    {{ (isset($data['skor'][$pegawai->id]) && $data['skor'][$pegawai->id] == $i) ? 'checked' : '' }}>
+                <label class="form-check-label" for="kebersihan_{{ $pegawai->id }}_{{ $i }}">
+                    {{ $i }}
+                </label>
             </div>
             @endfor
         </div>
     </td>
     <td>
-        <textarea class="form-control form-control-sm"
-                  name="catatan[{{ $pegawai->id }}]"
-                  rows="2"></textarea>
+        <textarea
+            class="form-control form-control-sm"
+            name="catatan[{{ $pegawai->id }}]"
+            rows="2"
+            placeholder="Masukkan kritik / saran..."
+        >{{ $data['catatan'][$pegawai->id] ?? '' }}</textarea>
     </td>
 </tr>
 @endforeach

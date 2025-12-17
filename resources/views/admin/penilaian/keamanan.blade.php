@@ -137,7 +137,6 @@
                        type="radio"
                        name="skor[{{ $pegawai->id }}]"
                        value="{{ $i }}"
-                       required
                        {{ (isset($data['skor'][$pegawai->id]) && $data['skor'][$pegawai->id] == $i) ? 'checked' : '' }}>
                 <label class="form-check-label">{{ $i }}</label>
             </div>
